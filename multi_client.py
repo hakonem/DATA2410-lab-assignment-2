@@ -10,11 +10,17 @@ except:
     print("ConnectionError")
     sys.exit()
 while True:
-    sentence = input('Input lowercase sentence:')
-    clientSocket.send(sentence.encode())
-    modifiedSentence = clientSocket.recv(1024)
-    print ('From Server:', modifiedSentence.decode())
-    if (sentence == "exit"):
+    instr = input('Input instruction: ')
+    clientSocket.send(instr.encode())
+    #modifiedSentence = clientSocket.recv(1024)
+    #print ('From Server:', modifiedSentence.decode())
+    if (instr == "broadcast"):
+        msg = input('Input message for broadcast: ')
+        clientSocket.send(msg.encode())
+        msg_recv = clientSocket.recv(1024)
+        print('From Server:', msg_recv.decode())
+    if (instr == "exit"):
         break
+
 
 clientSocket.close()

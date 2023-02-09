@@ -10,20 +10,33 @@ from socket import *
 import _thread as thread
 import time
 
+"""
 def now():
 
     return time.ctime(time.time())    #returns the time of day
+"""
 
 def handleClient(connection):      #a client handler function
 
     while True:
         data = connection.recv(1024).decode()
-        print ("received  message = ", data)
-        modified_message = data.upper()
-        connection.send(modified_message.encode())
+        print ("received instruction = ", data)
+        #modified_message = data.upper()
+        #connection.send(modified_message.encode())
+        if (data == "broadcast"):
+            broadcast(connection, list)
         if (data == "exit"):
             break
     connection.close()
+
+def broadcast(connection, clients):
+    message = connection.recv(1024).decode()
+    print("received broadcast message = ", message)
+    #print(*clients, sep = "\n")
+    #connection.send(message.encode())
+    for client in [clients]:
+        connection.send(message.encode())
+
 
 
 def main():
@@ -42,10 +55,10 @@ def main():
     print('The server is ready to receive')
     while True:
         connectionSocket, addr = serverSocket.accept()
-        clients.append(connectionSocket)
-        print(*clients)
-        print('Server connected by ', addr)
-        print('at ', now())
+        clients.append(addr)
+        print(*clients, sep = "\n")
+        #print('Server connected by ', addr)
+        #print('at ', now())
         thread.start_new_thread(handleClient, (connectionSocket,))
     serverSocket.close()
 
