@@ -33,6 +33,7 @@ def main():
     """
     serverPort = 17979
     serverSocket = socket(AF_INET,SOCK_STREAM)
+    clients = []
     try:
         serverSocket.bind(('',serverPort))
     except:
@@ -41,6 +42,8 @@ def main():
     print('The server is ready to receive')
     while True:
         connectionSocket, addr = serverSocket.accept()
+        clients.append(connectionSocket)
+        print(*clients)
         print('Server connected by ', addr)
         print('at ', now())
         thread.start_new_thread(handleClient, (connectionSocket,))
