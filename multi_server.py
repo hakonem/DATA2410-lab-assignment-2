@@ -46,6 +46,7 @@ def receive():
 
         thread = threading.Thread(target=handle, args=(client,))
         thread.start()
+        print(f"[ACTIVE CONNECTION] {threading.active_count() - 1}" + "\n")
 
 print("Server is listening...")
 receive()
