@@ -1,66 +1,51 @@
-"""
-Server side: open a socket on a port, listen for a message
-from a client, and send an echo reply;
-echoes lines until eof when client closes socket; spawns a
-thread to handle each client connection; threads share global
-memory space with main thread.
-"""
 import threading
-from socket import *
-import _thread as thread
-import time
+import socket
 
-"""
-def now():
+host = socket.gethostbyname(socket.gethostname())
+port = 5050
+ADDR = (host, port)
 
-    return time.ctime(time.time())    #returns the time of day
-"""
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.bind(ADDR)
+server.listen()
 
-def handleClient(connection):      #a client handler function
+clients = []
+usernames = []
 
+def broadcast(message):
+    for client in clients:
+        client.send(message)
+
+def handle(client):
     while True:
-        data = connection.recv(1024).decode()
-        print ("received instruction = ", data)
-        #modified_message = data.upper()
-        #connection.send(modified_message.encode())
-        if (data == "broadcast"):
-            broadcast(connection, list)
-        if (data == "exit"):
+        try:
+            message = client.recv(1024)
+            broadcast(message)
+        except:
+            index = clients.index(client)
+            clients.remove(client)
+            client.close()
+            username = usernames[index]
+            broadcast(f'{username} left the chat!'.encode('ascii'))
+            usernames.remove(username)
             break
-    connection.close()
 
-def broadcast(connection, clients):
-    message = connection.recv(1024).decode()
-    print("received broadcast message = ", message)
-    #print(*clients, sep = "\n")
-    #connection.send(message.encode())
-    for client in [clients]:
-        connection.send(message.encode())
-
-
-
-def main():
-    """
-    creates a server socket, listens for new connections,
-    and spawns a new thread whenever a new connection join
-    """
-    serverPort = 17979
-    serverSocket = socket(AF_INET,SOCK_STREAM)
-    clients = []
-    try:
-        serverSocket.bind(('',serverPort))
-    except:
-        print("Bind failed. Error : ")
-    serverSocket.listen(1)
-    print('The server is ready to receive')
+def receive():
     while True:
-        connectionSocket, addr = serverSocket.accept()
-        clients.append(addr)
-        print(*clients, sep = "\n")
-        #print('Server connected by ', addr)
-        #print('at ', now())
-        thread.start_new_thread(handleClient, (connectionSocket,))
-    serverSocket.close()
+        client, address = server.accept()
+        print(f"Connected with {str(address)}")
 
-if __name__ == '__main__':
-    main()
+        client.send('USRN'.encode('ascii'))
+        username = client.recv(1024).decode('ascii')
+        usernames.append(username)
+        clients.append(client)
+
+        print(f'Username of the client is {username}!')
+        broadcast(f'{username} joined the chat!'.encode('ascii'))
+        client.send('Connected to the server!'.encode('ascii'))
+
+        thread = threading.Thread(target=handle, args=(client,))
+        thread.start()
+
+print("Server is listening...")
+receive()
