@@ -27,7 +27,7 @@ while True:
             if not data:                                #exit if-statement if no message received from client
                 break
             else:
-                print("New message : " + str(data, 'UTF-8'))    #converts message to string and prints to screen
+                print(str(data, 'UTF-8'))           #converts message to string and prints to screen
             ###your code ends here###
         else:
             ###write your code here###

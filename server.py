@@ -34,7 +34,7 @@ def handleClient(connection, addr):     #a client handler function
             print(*all_client_connections, sep="\n")    #prints updated list to screen
             break
         ###write your code here###
-        broadcast(all_client_connections, message)       #broadcast new message to all clients in the list
+        broadcast(all_client_connections, "Message from " + str(addr) + ": " + message)       #broadcast new message to all clients in the list
         ###your code ends here###
 
 def broadcast(all_client_connections, message):
